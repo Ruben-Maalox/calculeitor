@@ -4,42 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Media</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Calculadora de Media</h1>
-    <form id="formNotas">
-        <label for="nota1">Nota 1:</label>
-        <input type="number" id="nota1" step="0.1" placeholder="0"><br>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center text-success mb-4">Calculadora de notas</h1>
+        <form id="formNotas" class="p-4 bg-white rounded shadow">
+            <!-- Campo para las notas -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nota1" class="form-label">Nota 1:</label>
+                    <input type="number" id="nota1" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota2" class="form-label">Nota 2:</label>
+                    <input type="number" id="nota2" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota3" class="form-label">Nota 3:</label>
+                    <input type="number" id="nota3" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota4" class="form-label">Nota 4:</label>
+                    <input type="number" id="nota4" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota5" class="form-label">Nota 5:</label>
+                    <input type="number" id="nota5" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota6" class="form-label">Nota 6:</label>
+                    <input type="number" id="nota6" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nota7" class="form-label">Nota 7:</label>
+                    <input type="number" id="nota7" class="form-control" step="0.1" placeholder="0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="notaExtra" class="form-label">Nota Extra:</label>
+                    <input type="number" id="notaExtra" class="form-control" step="0.1" placeholder="0">
+                </div>
+            </div>
 
-        <label for="nota2">Nota 2:</label>
-        <input type="number" id="nota2" step="0.1" placeholder="0"><br>
+            <!-- Botón calcular -->
+            <button type="button" class="btn btn-success w-100" onclick="calcularMedia()">Calcular Media</button>
+        </form>
 
-        <label for="nota3">Nota 3:</label>
-        <input type="number" id="nota3" step="0.1" placeholder="0"><br>
+        <!-- Resultado -->
+        <h2 id="resultado" class="text-center mt-4 text-primary"></h2>
+    </div>
 
-        <label for="nota4">Nota 4:</label>
-        <input type="number" id="nota4" step="0.1" placeholder="0"><br>
+    <!-- Bootstrap JS (opcional, si usas interactividad de Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        <label for="nota5">Nota 5:</label>
-        <input type="number" id="nota5" step="0.1" placeholder="0"><br>
-
-        <label for="nota6">Nota 6:</label>
-        <input type="number" id="nota6" step="0.1" placeholder="0"><br>
-
-        <label for="nota7">Nota 7:</label>
-        <input type="number" id="nota7" step="0.1" placeholder="0"><br>
-
-        <label for="notaExtra">Nota Prácticas:</label>
-        <input type="number" id="notaExtra" step="0.1" placeholder="0"><br><br>
-
-        <button type="button" onclick="calcularMedia()">Calcular Media</button>
-    </form>
-
-    <h2 id="resultado"></h2>
-
+    <!-- Script para la calculadora -->
     <script>
         function calcularMedia() {
-            // Obtener las 7 notas o establecerlas como 0 si están vacías
             const notas = [
                 parseFloat(document.getElementById("nota1").value) || 0,
                 parseFloat(document.getElementById("nota2").value) || 0,
@@ -49,17 +70,11 @@
                 parseFloat(document.getElementById("nota6").value) || 0,
                 parseFloat(document.getElementById("nota7").value) || 0
             ];
-
-            // Obtener la nota extra o establecerla como 0 si está vacía
             const notaExtra = parseFloat(document.getElementById("notaExtra").value) || 0;
 
-            // Calcular el promedio de las 7 notas
             const promedioNotas = notas.reduce((acc, curr) => acc + curr, 0) / notas.length;
-
-            // Calcular la media final (promedio de los dos grupos)
             const mediaFinal = (promedioNotas + notaExtra) / 2;
 
-            // Mostrar el resultado
             document.getElementById("resultado").textContent = `La media final es: ${mediaFinal.toFixed(2)}`;
         }
     </script>
