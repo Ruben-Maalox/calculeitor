@@ -37,10 +37,10 @@
                     <label for="nota6" class="form-label">Nota 6:</label>
                     <input type="number" id="nota6" class="form-control" step="0.1" placeholder="0">
                 </div>
-                <div class="col-md-6 mb-3">
+                <!-- <div class="col-md-6 mb-3">
                     <label for="nota7" class="form-label">Nota 7:</label>
                     <input type="number" id="nota7" class="form-control" step="0.1" placeholder="0">
-                </div>
+                </div> -->
                 <div class="col-md-6 mb-3">
                     <label for="notaExtra" class="form-label">Nota práticas:</label>
                     <input type="number" id="notaExtra" class="form-control" step="0.1" placeholder="0">
@@ -49,7 +49,7 @@
 
             <!-- Botón calcular -->
             <button type="button" class="btn btn-success w-100 mb-3" onclick="calcularMedia()">Calcular Media</button>
-            <button type="button" class="btn btn-primary w-100 mb-3" onclick="calcularMediaNotas()">Calcular Media de las 7 Notas</button>
+            <button type="button" class="btn btn-primary w-100 mb-3" onclick="calcularMediaNotas()">Calcular Media de las 6 Notas</button>
             <button type="button" class="btn btn-secondary w-100" onclick="resetearNotas()">Resetear Notas</button>
         </form>
 
@@ -70,7 +70,7 @@
                 parseFloat(document.getElementById("nota4").value) || 0,
                 parseFloat(document.getElementById("nota5").value) || 0,
                 parseFloat(document.getElementById("nota6").value) || 0,
-                parseFloat(document.getElementById("nota7").value) || 0
+                // parseFloat(document.getElementById("nota7").value) || 0
             ];
             const notaExtra = parseFloat(document.getElementById("notaExtra").value) || 0;
 
@@ -88,12 +88,12 @@
             parseFloat(document.getElementById("nota4").value) || 0,
             parseFloat(document.getElementById("nota5").value) || 0,
             parseFloat(document.getElementById("nota6").value) || 0,
-            parseFloat(document.getElementById("nota7").value) || 0
+            // parseFloat(document.getElementById("nota7").value) || 0
         ];
 
         const promedioNotas = notas.reduce((acc, curr) => acc + curr, 0) / notas.length;
 
-        document.getElementById("resultado").textContent = `La media de las 7 notas es: ${promedioNotas.toFixed(2)}`;
+        document.getElementById("resultado").textContent = `La media de las 6 notas es: ${promedioNotas.toFixed(2)}`;
     }
 
     function resetearNotas() {
@@ -103,7 +103,7 @@
         document.getElementById("nota4").value = 0;
         document.getElementById("nota5").value = 0;
         document.getElementById("nota6").value = 0;
-        document.getElementById("nota7").value = 0;
+        // document.getElementById("nota7").value = 0;
         document.getElementById("notaExtra").value = 0;
         document.getElementById("resultado").textContent = '';
     }
