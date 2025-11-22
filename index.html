@@ -1,112 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Media</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
     <div class="container mt-5">
         <h1 class="text-center text-success mb-4">Calculadora de notas</h1>
+
         <form id="formNotas" class="p-4 bg-white rounded shadow">
-            <!-- Campo para las notas -->
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="nota1" class="form-label">Nota 1:</label>
-                    <input type="number" id="nota1" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota1" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota2" class="form-label">Nota 2:</label>
-                    <input type="number" id="nota2" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota2" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota3" class="form-label">Nota 3:</label>
-                    <input type="number" id="nota3" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota3" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota4" class="form-label">Nota 4:</label>
-                    <input type="number" id="nota4" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota4" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota5" class="form-label">Nota 5:</label>
-                    <input type="number" id="nota5" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota5" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota6" class="form-label">Nota 6:</label>
-                    <input type="number" id="nota6" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota6" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nota7" class="form-label">Nota 7:</label>
-                    <input type="number" id="nota7" class="form-control" step="0.1" placeholder="0">
+                    <input type="number" id="nota7" class="form-control nota" step="0.1" placeholder="0">
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="notaExtra" class="form-label">Nota práticas:</label>
-                    <input type="number" id="notaExtra" class="form-control" step="0.1" placeholder="0">
+                    <label for="notaExtra" class="form-label">Nota prácticas:</label>
+                    <input type="number" id="notaExtra" class="form-control nota" step="0.1" placeholder="0">
                 </div>
             </div>
 
-            <!-- Botón calcular -->
-            <button type="button" class="btn btn-success w-100 mb-3" onclick="calcularMedia()">Calcular Media</button>
-            <button type="button" class="btn btn-primary w-100 mb-3" onclick="calcularMediaNotas()">Calcular Media de las 7 Notas</button>
             <button type="button" class="btn btn-secondary w-100" onclick="resetearNotas()">Resetear Notas</button>
         </form>
 
-        <!-- Resultado -->
-        <h2 id="resultado" class="text-center mt-4 text-primary"></h2>
+        <!-- Tarjetas de resultados -->
+        <div class="row mt-4">
+            <div class="col-md-6 mb-3">
+                <div id="cardMediaNotas" class="card text-center border-secondary">
+                    <div class="card-header fw-bold">
+                        Media de las 7 notas
+                    </div>
+                    <div class="card-body">
+                        <p id="mediaNotasValor" class="display-5 mb-0">0.00</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div id="cardMediaFinal" class="card text-center border-secondary">
+                    <div class="card-header fw-bold">
+                        Media final (7 notas + prácticas)
+                    </div>
+                    <div class="card-body">
+                        <p id="mediaFinalValor" class="display-5 mb-0">0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Bootstrap JS (opcional, si usas interactividad de Bootstrap) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Script para la calculadora -->
     <script>
-        function calcularMedia() {
-            const notas = [
-                parseFloat(document.getElementById("nota1").value) || 0,
-                parseFloat(document.getElementById("nota2").value) || 0,
-                parseFloat(document.getElementById("nota3").value) || 0,
-                parseFloat(document.getElementById("nota4").value) || 0,
-                parseFloat(document.getElementById("nota5").value) || 0,
-                parseFloat(document.getElementById("nota6").value) || 0,
-                parseFloat(document.getElementById("nota7").value) || 0
-            ];
+        function calcularAuto() {
+            const notas = [];
+            for (let i = 1; i <= 7; i++) {
+                notas.push(parseFloat(document.getElementById("nota" + i).value) || 0);
+            }
+
             const notaExtra = parseFloat(document.getElementById("notaExtra").value) || 0;
 
-            const promedioNotas = notas.reduce((acc, curr) => acc + curr, 0) / notas.length;
+            const sumaNotas = notas.reduce((a, b) => a + b, 0);
+            const promedioNotas = sumaNotas / notas.length;
             const mediaFinal = (promedioNotas + notaExtra) / 2;
 
-            document.getElementById("resultado").textContent = `La media final es: ${mediaFinal.toFixed(2)}`;
+            // Actualizar texto
+            document.getElementById("mediaNotasValor").textContent = promedioNotas.toFixed(2);
+            document.getElementById("mediaFinalValor").textContent = mediaFinal.toFixed(2);
+
+            // Actualizar colores de las tarjetas
+            actualizarCard(document.getElementById("cardMediaNotas"), promedioNotas);
+            actualizarCard(document.getElementById("cardMediaFinal"), mediaFinal);
         }
 
-        function calcularMediaNotas() {
-        const notas = [
-            parseFloat(document.getElementById("nota1").value) || 0,
-            parseFloat(document.getElementById("nota2").value) || 0,
-            parseFloat(document.getElementById("nota3").value) || 0,
-            parseFloat(document.getElementById("nota4").value) || 0,
-            parseFloat(document.getElementById("nota5").value) || 0,
-            parseFloat(document.getElementById("nota6").value) || 0,
-            parseFloat(document.getElementById("nota7").value) || 0
-        ];
+        function actualizarCard(cardElement, value) {
+            // Quitar clases anteriores
+            cardElement.classList.remove(
+                "border-success",
+                "border-danger",
+                "border-secondary",
+                "text-success",
+                "text-danger",
+                "text-secondary"
+            );
 
-        const promedioNotas = notas.reduce((acc, curr) => acc + curr, 0) / notas.length;
+            // Asignar color según nota
+            if (value >= 5) {
+                cardElement.classList.add("border-success", "text-success");
+            } else {
+                cardElement.classList.add("border-danger", "text-danger");
+            }
+        }
 
-        document.getElementById("resultado").textContent = `La media de las 7 notas es: ${promedioNotas.toFixed(2)}`;
-    }
+        function resetearNotas() {
+            document.querySelectorAll(".nota").forEach(input => input.value = 0);
 
-    function resetearNotas() {
-        document.getElementById("nota1").value = 0;
-        document.getElementById("nota2").value = 0;
-        document.getElementById("nota3").value = 0;
-        document.getElementById("nota4").value = 0;
-        document.getElementById("nota5").value = 0;
-        document.getElementById("nota6").value = 0;
-        document.getElementById("nota7").value = 0;
-        document.getElementById("notaExtra").value = 0;
-        document.getElementById("resultado").textContent = '';
-    }
+            document.getElementById("mediaNotasValor").textContent = "0.00";
+            document.getElementById("mediaFinalValor").textContent = "0.00";
+
+            const cardMediaNotas = document.getElementById("cardMediaNotas");
+            const cardMediaFinal = document.getElementById("cardMediaFinal");
+
+            cardMediaNotas.className = "card text-center border-secondary";
+            cardMediaFinal.className = "card text-center border-secondary";
+        }
+
+        // Recalcular automáticamente cuando cambia cualquier nota
+        document.querySelectorAll(".nota").forEach(input => {
+            input.addEventListener("input", calcularAuto);
+        });
     </script>
 </body>
 </html>
