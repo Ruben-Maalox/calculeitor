@@ -11,42 +11,26 @@
         <h1 class="text-center text-success mb-4">Calculadora de notas</h1>
 
         <form id="formNotas" class="p-4 bg-white rounded shadow">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="nota1" class="form-label">Nota 1:</label>
-                    <input type="number" id="nota1" class="form-control nota" step="0.1" placeholder="0">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="numNotas" class="form-label">Cantidad de notas:</label>
+                    <input type="number" id="numNotas" class="form-control" min="1" max="20" step="1" value="7">
+                    <div class="form-text">Ajusta cuantas notas quieres promediar.</div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota2" class="form-label">Nota 2:</label>
-                    <input type="number" id="nota2" class="form-control nota" step="0.1" placeholder="0">
+                <div class="col-md-4">
+                    <label for="notaExtra" class="form-label">Nota practicas:</label>
+                    <input type="number" id="notaExtra" class="form-control nota-extra" step="0.1" min="0" max="10" placeholder="0">
+                    <div class="invalid-feedback">Rango permitido: 0 - 10.</div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota3" class="form-label">Nota 3:</label>
-                    <input type="number" id="nota3" class="form-control nota" step="0.1" placeholder="0">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota4" class="form-label">Nota 4:</label>
-                    <input type="number" id="nota4" class="form-control nota" step="0.1" placeholder="0">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota5" class="form-label">Nota 5:</label>
-                    <input type="number" id="nota5" class="form-control nota" step="0.1" placeholder="0">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota6" class="form-label">Nota 6:</label>
-                    <input type="number" id="nota6" class="form-control nota" step="0.1" placeholder="0">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="nota7" class="form-label">Nota 7:</label>
-                    <input type="number" id="nota7" class="form-control nota" step="0.1" placeholder="0">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="notaExtra" class="form-label">Nota prácticas:</label>
-                    <input type="number" id="notaExtra" class="form-control nota" step="0.1" placeholder="0">
+                <div class="col-md-4 d-grid gap-2">
+                    <button type="button" class="btn btn-secondary" onclick="resetearNotas()">Limpiar</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="copiarResultado()">Copiar resultado</button>
+                    <button type="button" class="btn btn-outline-success" onclick="exportarCSV()">Exportar CSV</button>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-secondary w-100" onclick="resetearNotas()">Resetear Notas</button>
+            <div class="row mt-3" id="notasContainer"></div>
+            <div id="estadoValidacion" class="text-danger small mt-2 d-none">Corrige los valores fuera de rango.</div>
         </form>
 
         <!-- Tarjetas de resultados -->
@@ -58,16 +42,18 @@
                     </div>
                     <div class="card-body">
                         <p id="mediaNotasValor" class="display-5 mb-0">0.00</p>
+                        <p id="mediaNotasEstado" class="mb-0 small text-muted">Esperando datos</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 mb-3">
                 <div id="cardMediaFinal" class="card text-center border-secondary">
                     <div class="card-header fw-bold">
-                        Media final (7 notas + prácticas)
+                        Media final (notas + practicas)
                     </div>
                     <div class="card-body">
                         <p id="mediaFinalValor" class="display-5 mb-0">0.00</p>
+                        <p id="mediaFinalEstado" class="mb-0 small text-muted">Esperando datos</p>
                     </div>
                 </div>
             </div>
@@ -75,29 +61,88 @@
     </div>
 
     <script>
-        function calcularAuto() {
-            const notas = [];
-            for (let i = 1; i <= 7; i++) {
-                notas.push(parseFloat(document.getElementById("nota" + i).value) || 0);
-            }
+        const STORAGE_KEY = "calculadoraNotas:v1";
 
-            const notaExtra = parseFloat(document.getElementById("notaExtra").value) || 0;
+        function crearInputNota(index, value = "") {
+            const col = document.createElement("div");
+            col.className = "col-md-6 mb-3";
 
-            const sumaNotas = notas.reduce((a, b) => a + b, 0);
-            const promedioNotas = sumaNotas / notas.length;
-            const mediaFinal = (promedioNotas + notaExtra) / 2;
+            const label = document.createElement("label");
+            label.className = "form-label";
+            label.setAttribute("for", `nota${index}`);
+            label.textContent = `Nota ${index}:`;
 
-            // Actualizar texto
-            document.getElementById("mediaNotasValor").textContent = promedioNotas.toFixed(2);
-            document.getElementById("mediaFinalValor").textContent = mediaFinal.toFixed(2);
+            const input = document.createElement("input");
+            input.type = "number";
+            input.id = `nota${index}`;
+            input.className = "form-control nota";
+            input.step = "0.1";
+            input.min = "0";
+            input.max = "10";
+            input.placeholder = "0";
+            input.inputMode = "decimal";
+            input.value = value;
+            input.addEventListener("input", manejarInput);
 
-            // Actualizar colores de las tarjetas
-            actualizarCard(document.getElementById("cardMediaNotas"), promedioNotas);
-            actualizarCard(document.getElementById("cardMediaFinal"), mediaFinal);
+            const feedback = document.createElement("div");
+            feedback.className = "invalid-feedback";
+            feedback.textContent = "Rango permitido: 0 - 10.";
+
+            col.appendChild(label);
+            col.appendChild(input);
+            col.appendChild(feedback);
+            return col;
         }
 
-        function actualizarCard(cardElement, value) {
-            // Quitar clases anteriores
+        function construirNotas(cantidad, valores = []) {
+            const container = document.getElementById("notasContainer");
+            container.innerHTML = "";
+            for (let i = 1; i <= cantidad; i++) {
+                container.appendChild(crearInputNota(i, valores[i - 1] ?? ""));
+            }
+            actualizarTitulos(cantidad);
+        }
+
+        function actualizarTitulos(cantidad) {
+            const header = document.querySelector("#cardMediaNotas .card-header");
+            header.textContent = `Media de las ${cantidad} notas`;
+        }
+
+        function parsearNumero(raw) {
+            if (raw === "") return null;
+            const val = Number(raw);
+            return Number.isFinite(val) ? val : null;
+        }
+
+        function validarInput(input, valor) {
+            const invalido = valor !== null && (valor < 0 || valor > 10);
+            input.classList.toggle("is-invalid", invalido);
+            return invalido;
+        }
+
+        function obtenerNotas() {
+            const inputs = Array.from(document.querySelectorAll(".nota"));
+            const valores = [];
+            let hayInvalidos = false;
+
+            inputs.forEach(input => {
+                const valor = parsearNumero(input.value.trim());
+                const invalido = validarInput(input, valor);
+                if (invalido) hayInvalidos = true;
+                valores.push(valor ?? 0);
+            });
+
+            return { valores, hayInvalidos };
+        }
+
+        function obtenerNotaExtra() {
+            const input = document.getElementById("notaExtra");
+            const valor = parsearNumero(input.value.trim());
+            const invalido = validarInput(input, valor);
+            return { valor: valor ?? 0, invalido };
+        }
+
+        function actualizarCard(cardElement, value, estado) {
             cardElement.classList.remove(
                 "border-success",
                 "border-danger",
@@ -107,30 +152,163 @@
                 "text-secondary"
             );
 
-            // Asignar color según nota
+            if (value === null) {
+                cardElement.classList.add("border-secondary", "text-secondary");
+                return;
+            }
+
             if (value >= 5) {
                 cardElement.classList.add("border-success", "text-success");
             } else {
                 cardElement.classList.add("border-danger", "text-danger");
             }
+
+            const estadoEl = cardElement.querySelector(".small");
+            if (estadoEl) estadoEl.textContent = estado;
+        }
+
+        function calcularAuto() {
+            const { valores, hayInvalidos } = obtenerNotas();
+            const { valor: notaExtra, invalido: invalidoExtra } = obtenerNotaExtra();
+            const estadoValidacion = document.getElementById("estadoValidacion");
+
+            if (hayInvalidos || invalidoExtra) {
+                estadoValidacion.classList.remove("d-none");
+                document.getElementById("mediaNotasValor").textContent = "--";
+                document.getElementById("mediaFinalValor").textContent = "--";
+                document.getElementById("mediaNotasEstado").textContent = "Revisa valores";
+                document.getElementById("mediaFinalEstado").textContent = "Revisa valores";
+                actualizarCard(document.getElementById("cardMediaNotas"), null, "");
+                actualizarCard(document.getElementById("cardMediaFinal"), null, "");
+                return;
+            }
+
+            estadoValidacion.classList.add("d-none");
+
+            const sumaNotas = valores.reduce((a, b) => a + b, 0);
+            const promedioNotas = valores.length ? sumaNotas / valores.length : 0;
+            const mediaFinal = (promedioNotas + notaExtra) / 2;
+
+            document.getElementById("mediaNotasValor").textContent = promedioNotas.toFixed(2);
+            document.getElementById("mediaFinalValor").textContent = mediaFinal.toFixed(2);
+
+            document.getElementById("mediaNotasEstado").textContent = promedioNotas >= 5 ? "Aprobado" : "Suspenso";
+            document.getElementById("mediaFinalEstado").textContent = mediaFinal >= 5 ? "Aprobado" : "Suspenso";
+
+            actualizarCard(document.getElementById("cardMediaNotas"), promedioNotas, promedioNotas >= 5 ? "Aprobado" : "Suspenso");
+            actualizarCard(document.getElementById("cardMediaFinal"), mediaFinal, mediaFinal >= 5 ? "Aprobado" : "Suspenso");
         }
 
         function resetearNotas() {
-            document.querySelectorAll(".nota").forEach(input => input.value = 0);
+            document.querySelectorAll(".nota").forEach(input => {
+                input.value = "";
+                input.classList.remove("is-invalid");
+            });
+
+            const extra = document.getElementById("notaExtra");
+            extra.value = "";
+            extra.classList.remove("is-invalid");
 
             document.getElementById("mediaNotasValor").textContent = "0.00";
             document.getElementById("mediaFinalValor").textContent = "0.00";
+            document.getElementById("mediaNotasEstado").textContent = "Esperando datos";
+            document.getElementById("mediaFinalEstado").textContent = "Esperando datos";
+            document.getElementById("estadoValidacion").classList.add("d-none");
 
             const cardMediaNotas = document.getElementById("cardMediaNotas");
             const cardMediaFinal = document.getElementById("cardMediaFinal");
-
             cardMediaNotas.className = "card text-center border-secondary";
             cardMediaFinal.className = "card text-center border-secondary";
+
+            localStorage.removeItem(STORAGE_KEY);
+            const first = document.querySelector(".nota");
+            if (first) first.focus();
         }
 
-        // Recalcular automáticamente cuando cambia cualquier nota
-        document.querySelectorAll(".nota").forEach(input => {
-            input.addEventListener("input", calcularAuto);
+        function manejarInput() {
+            guardarEstado();
+            calcularAuto();
+        }
+
+        function guardarEstado() {
+            const numNotas = Number(document.getElementById("numNotas").value) || 1;
+            const notas = Array.from(document.querySelectorAll(".nota")).map(input => input.value);
+            const notaExtra = document.getElementById("notaExtra").value;
+            const estado = { numNotas, notas, notaExtra };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+        }
+
+        function cargarEstado() {
+            const guardado = localStorage.getItem(STORAGE_KEY);
+            if (!guardado) return { numNotas: 7, notas: [], notaExtra: "" };
+            try {
+                return JSON.parse(guardado);
+            } catch {
+                return { numNotas: 7, notas: [], notaExtra: "" };
+            }
+        }
+
+        function manejarCantidadNotas() {
+            const numNotas = Math.max(1, Math.min(20, Number(document.getElementById("numNotas").value) || 1));
+            document.getElementById("numNotas").value = numNotas;
+            const estado = cargarEstado();
+            construirNotas(numNotas, estado.notas);
+            guardarEstado();
+            calcularAuto();
+        }
+
+        function copiarResultado() {
+            const texto = `Media notas: ${document.getElementById("mediaNotasValor").textContent} | Media final: ${document.getElementById("mediaFinalValor").textContent}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto);
+                return;
+            }
+            const temp = document.createElement("textarea");
+            temp.value = texto;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+        }
+
+        function exportarCSV() {
+            const { valores, hayInvalidos } = obtenerNotas();
+            const { valor: notaExtra, invalido: invalidoExtra } = obtenerNotaExtra();
+            if (hayInvalidos || invalidoExtra) {
+                alert("Corrige los valores fuera de rango antes de exportar.");
+                return;
+            }
+
+            const promedioNotas = valores.length ? valores.reduce((a, b) => a + b, 0) / valores.length : 0;
+            const mediaFinal = (promedioNotas + notaExtra) / 2;
+
+            const headers = valores.map((_, i) => `Nota ${i + 1}`);
+            headers.push("Practicas", "Media notas", "Media final");
+            const row = valores.map(v => v.toFixed(2));
+            row.push(notaExtra.toFixed(2), promedioNotas.toFixed(2), mediaFinal.toFixed(2));
+
+            const csv = `${headers.join(",")}\n${row.join(",")}\n`;
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "notas.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const estado = cargarEstado();
+            document.getElementById("numNotas").value = estado.numNotas || 7;
+            construirNotas(estado.numNotas || 7, estado.notas || []);
+            document.getElementById("notaExtra").value = estado.notaExtra || "";
+
+            document.getElementById("numNotas").addEventListener("change", manejarCantidadNotas);
+            document.getElementById("notaExtra").addEventListener("input", manejarInput);
+
+            calcularAuto();
         });
     </script>
 </body>
