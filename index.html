@@ -124,22 +124,26 @@
             const inputs = Array.from(document.querySelectorAll(".nota"));
             const valores = [];
             let hayInvalidos = false;
+            let hayDatos = false;
 
             inputs.forEach(input => {
-                const valor = parsearNumero(input.value.trim());
+                const raw = input.value.trim();
+                const valor = parsearNumero(raw);
                 const invalido = validarInput(input, valor);
                 if (invalido) hayInvalidos = true;
+                if (raw !== "") hayDatos = true;
                 valores.push(valor ?? 0);
             });
 
-            return { valores, hayInvalidos };
+            return { valores, hayInvalidos, hayDatos };
         }
 
         function obtenerNotaExtra() {
             const input = document.getElementById("notaExtra");
-            const valor = parsearNumero(input.value.trim());
+            const raw = input.value.trim();
+            const valor = parsearNumero(raw);
             const invalido = validarInput(input, valor);
-            return { valor: valor ?? 0, invalido };
+            return { valor: valor ?? 0, invalido, hayDato: raw !== "" };
         }
 
         function actualizarCard(cardElement, value, estado) {
@@ -168,8 +172,8 @@
         }
 
         function calcularAuto() {
-            const { valores, hayInvalidos } = obtenerNotas();
-            const { valor: notaExtra, invalido: invalidoExtra } = obtenerNotaExtra();
+            const { valores, hayInvalidos, hayDatos } = obtenerNotas();
+            const { valor: notaExtra, invalido: invalidoExtra, hayDato: hayDatoExtra } = obtenerNotaExtra();
             const estadoValidacion = document.getElementById("estadoValidacion");
 
             if (hayInvalidos || invalidoExtra) {
@@ -184,6 +188,16 @@
             }
 
             estadoValidacion.classList.add("d-none");
+
+            if (!hayDatos && !hayDatoExtra) {
+                document.getElementById("mediaNotasValor").textContent = "0.00";
+                document.getElementById("mediaFinalValor").textContent = "0.00";
+                document.getElementById("mediaNotasEstado").textContent = "Esperando datos";
+                document.getElementById("mediaFinalEstado").textContent = "Esperando datos";
+                actualizarCard(document.getElementById("cardMediaNotas"), null, "");
+                actualizarCard(document.getElementById("cardMediaFinal"), null, "");
+                return;
+            }
 
             const sumaNotas = valores.reduce((a, b) => a + b, 0);
             const promedioNotas = valores.length ? sumaNotas / valores.length : 0;
@@ -313,3 +327,4 @@
     </script>
 </body>
 </html>
+
